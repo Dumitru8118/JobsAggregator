@@ -13,7 +13,7 @@
 - The search results should include job titles, companies, and brief descriptions.
 - I should be able to click on a job listing to view the full job description.
 
-### Story 2: As a job seeker, I want to scrape job descriptions from a specific website, so that I can aggregate job listings from multiple sources.
+### Story 2: As a SYSTEM, I want to scrape job descriptions from a specific website, so that I can aggregate job listings from multiple sources.
 
 **Scenario:** Scraping job descriptions
 - **Given:** I have provided the URL of the website to scrape
@@ -46,7 +46,7 @@
 - Email notifications should be sent in a timely manner.
 - Users should have the option to unsubscribe from email notifications.
 
-### Story 5: As a job seeker, I want the scraper to run automatically every 12 hours, so that I can continuously receive updated job listings.
+### Story 5: As a SYSTEM, I want the scraper to run automatically every 12 hours, so that I can continuously receive updated job listings.
 
 **Scenario:** Automatic scraping
 - **Given:** The scraper is configured to run automatically
