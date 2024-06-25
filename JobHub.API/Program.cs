@@ -1,4 +1,6 @@
 using JobHub.API.Data;
+using JobHub.API.Models.Repository;
+using JobHub.API.Models.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +10,8 @@ var cnnString = builder.Configuration.GetConnectionString("JobsDb");
 
 builder.Services.AddDbContext<AppDbContext>(options 
 		=> options.UseNpgsql(cnnString));
+
+builder.Services.AddScoped<IJobRepository, JobRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

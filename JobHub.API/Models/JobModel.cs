@@ -1,23 +1,38 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace JobHub.API.Models
 {
 	public class JobModel
 	{
-		public string Url { get; set; }
-		public string? Description { get; set; }
-		public string CompanyName { get; set; }
-		public string JobName { get; set; }
+		/// <summary>
+		/// The id is going to be extracted from the URL 
+		/// Eg: /italian-speaker-remote-work-at-home-customer-support-specialist/1776354 => 1776354
+		/// </summary>
+		[Key]
 		public string Id { get; private set; }
 
-		[Column("DatePosted")]
-		public string DatePosted { get; set; }
+		[Required]
+		public string Url { get; set; }
 
-		// Constructor
-		public JobModel(string url, string description, string companyName, string jobName, string datePosted)
+		//[Required]
+		public string? CompanyName { get; set; }
+
+		//[Required]
+		public string? JobName { get; set; }
+
+		[Column("Date Posted")]
+		public string? DatePosted { get; set; }
+
+		// Navigation property for JobPageModel
+		public JobPageModel? JobPage { get; set; }
+		public JobModel(
+			string url,
+			string companyName,
+			string jobName,
+			string datePosted)
 		{
 			Url = url;
-			Description = description;
 			CompanyName = companyName;
 			JobName = jobName;
 			DatePosted = datePosted;

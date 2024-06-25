@@ -12,22 +12,7 @@ namespace JobHub.API.Data
 		}
 
 		public DbSet<JobModel> Jobs { get; set; }
+		public DbSet<JobPageModel> JobPages { get; set; }
+
 	}
-
-	//public class AppDbContext : DbContext
-	//{
-	//	protected private readonly IConfiguration Configuration;
-
-	//	public AppDbContext(IConfiguration configuration)
-	//	{
-	//		Configuration = configuration;
-	//	}
-
-	//	protected override void OnConfiguring(DbContextOptionsBuilder options)
-	//	{
-	//		options.UseNpgsql(Configuration.GetConnectionString("JobsDb"));
-	//	}
-
-	//	DbSet<JobModel> Jobs { get; set; }
-	//}
 }
