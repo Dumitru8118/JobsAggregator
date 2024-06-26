@@ -69,11 +69,18 @@ namespace JobHub.API.Models.Repository
 		{
 			var jobs = await _context.Jobs.AsNoTracking()
 				.OrderBy(x => x.Id)
-				.Where(p => Int32.Parse(p.Id) > reference)
+				.Where(p => p.Id > reference)
 				.Take(pageSize)
 				.ToListAsync();
 
-			var newReference = jobs.Count != 0 ? Int32.Parse(jobs.Last().Id) : 0;
+
+			foreach (var job in jobs)
+			{
+				var jobPage = await _context.JobPages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == job.Id);
+				job.JobPage = jobPage;
+			}
+
+			var newReference = jobs.Count != 0 ? jobs.Last().Id : 0;
 
 			var pagedResponse = new PagedResponseKeyset<JobModel>(jobs, newReference);
 

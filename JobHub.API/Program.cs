@@ -12,6 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options
 		=> options.UseNpgsql(cnnString));
 
 builder.Services.AddScoped<IJobRepository, JobRepository>();
+builder.Services.AddScoped<IJobPageRepository, JobPageRepository>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

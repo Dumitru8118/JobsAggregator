@@ -5,6 +5,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using System.Reflection.Metadata;
+using System.Runtime.Intrinsics.X86;
 
 namespace JobHub.API.Services
 {
@@ -41,7 +42,7 @@ namespace JobHub.API.Services
 				}
 				else
 				{
-					if ( page <= 10)
+					if ( page <= 2)
 					{
 						// Navigate to the webpage "https://www.ejobs.ro/locuri-de-munca"
 						driver.Navigate().GoToUrl(Constants.ejobsUrl + "/pagina" + page.ToString());
@@ -114,21 +115,32 @@ namespace JobHub.API.Services
 			// Navigate to the webpage "https://www.ejobs.ro/locuri-de-munca"
 			driver.Navigate().GoToUrl(job.Url);
 
+			JobPageModel jobPage;
+
 			// Find and Click the "See More" button
-			IWebElement showMoreOptionsButton = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[1]"));
-			showMoreOptionsButton.Click();
+			IWebElement showMoreOptionsButton;
 
-			// Scrape relevant data
-			var salary = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[1]/span[2]")).Text;
-			var city = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]/div")).Text;
-			var jobType = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]/div/div/a")).Text;
-			var expertiseLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[5]/div/div/a")).Text;
-			var industry = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[6]/div/div/a")).Text;
-			var qualificationLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[7]/div/div/a")).Text;
-			var department = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[8]/div/div/a")).Text;
-			var language = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[9]")).Text;
+			try
+			{
+				showMoreOptionsButton = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[1]"));
+				
+			}
+			catch (InvalidOperationException ex) 
+			{
+				showMoreOptionsButton = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[2]"));
+			}                                                     
+			catch (Exception)
+			{
+				var salary = "Not found";
+				var city = "Not found";
+				var jobType = "Not found";
+				var expertiseLvl = "Not found";
+				var industry = "Not found";
+				var qualificationLvl = "Not found";
+				var department = "Not found";
+				var language = "Not found";
 
-			JobPageModel jobPage = new JobPageModel(
+				jobPage = new JobPageModel(
 				id: job.Id,
 				salary: salary,
 				city: city,
@@ -139,6 +151,78 @@ namespace JobHub.API.Services
 				department: department,
 				language: language
 				);
+
+				return jobPage;
+			}
+
+			showMoreOptionsButton.Click();
+
+			
+			try
+			{
+				// Scrape relevant data
+				var salary = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[1]")).Text;
+				var city = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]")).Text;
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]/div/div
+
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]/div/div
+
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]
+				var jobType = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[3]")).Text;
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[3]/div
+				var expertiseLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]")).Text;
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[6]/div/div
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]/div
+				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[5]/div/div
+				var industry = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[7]")).Text;
+				var qualificationLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[7]/div/div/a")).Text;
+				var department = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[8]/div/div/a")).Text;
+				var language = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[9]")).Text;
+
+				jobPage = new JobPageModel(
+				id: job.Id,
+				salary: salary,
+				city: city,
+				jobType: jobType,
+				expertiseLvl: expertiseLvl,
+				industry: industry,
+				qualificationLvl: qualificationLvl,
+				department: department,
+				language: language
+				);
+
+
+				Console.WriteLine(jobPage);
+				Console.WriteLine();
+			}
+			catch (InvalidOperationException ex) {
+
+				var salary = "Not found";
+				var city = "Not found";
+				var jobType = "Not found";
+				var expertiseLvl = "Not found";
+				var industry = "Not found";
+				var qualificationLvl = "Not found";
+				var department = "Not found";
+				var language = "Not found";
+
+				jobPage = new JobPageModel(
+				id: job.Id,
+				salary: salary,
+				city: city,
+				jobType: jobType,
+				expertiseLvl: expertiseLvl,
+				industry: industry,
+				qualificationLvl: qualificationLvl,
+				department: department,
+				language: language
+				);
+
+				Console.WriteLine(jobPage);
+				Console.WriteLine();
+
+			}
 
 			return jobPage;
 		}

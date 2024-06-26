@@ -7,7 +7,7 @@ namespace JobHub.API.Models
 	{
 		// Additional properties
 		[Key, ForeignKey("JobModel")]
-		public string Id { get; set; } // Use the same ID as JobModel
+		public int Id { get; set; } // Use the same ID as JobModel
 
 		[Required]
 		public string Salary { get; set; }
@@ -34,7 +34,7 @@ namespace JobHub.API.Models
 		public string Language { get; set; }
 
 		public JobPageModel(
-			string id,
+			int id,
 			string salary, 
 			string city, 
 			string jobType, 
