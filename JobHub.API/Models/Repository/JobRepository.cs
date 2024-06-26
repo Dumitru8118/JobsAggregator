@@ -64,5 +64,20 @@ namespace JobHub.API.Models.Repository
 			}
 			_context.SaveChanges();
 		}
+
+		public async Task<PagedResponseKeyset<JobModel>> GetWithKeysetPagination(int reference, int pageSize)
+		{
+			var jobs = await _context.Jobs.AsNoTracking()
+				.OrderBy(x => x.Id)
+				.Where(p => Int32.Parse(p.Id) > reference)
+				.Take(pageSize)
+				.ToListAsync();
+
+			var newReference = jobs.Count != 0 ? Int32.Parse(jobs.Last().Id) : 0;
+
+			var pagedResponse = new PagedResponseKeyset<JobModel>(jobs, newReference);
+
+			return pagedResponse;
+		}
 	}
 }

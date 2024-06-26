@@ -8,5 +8,6 @@
 		void Update(JobModel job);
 		void Delete(JobModel job);
 		Task SaveRange(List<JobModel> jobs);
+		Task<PagedResponseKeyset<JobModel>> GetWithKeysetPagination(int reference, int pageSize);
 	}
 }
