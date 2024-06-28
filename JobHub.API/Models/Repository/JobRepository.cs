@@ -24,10 +24,15 @@ namespace JobHub.API.Models.Repository
 			throw new NotImplementedException();
 		}
 
-		public IEnumerable<JobModel> GetAll()
+		public  List<JobModel> GetAll()
 		{
-			IEnumerable<JobModel> jobs = _context.Jobs;
-			throw new NotImplementedException();
+			return _context.Jobs.Select(job => new JobModel()
+			{
+				Url = job.Url,
+				CompanyName = job.CompanyName,
+				JobName = job.JobName,
+				DatePosted = job.DatePosted,
+			}).ToList();
 		}
 
 		public JobModel GetById(int id)
@@ -86,5 +91,6 @@ namespace JobHub.API.Models.Repository
 
 			return pagedResponse;
 		}
+
 	}
 }

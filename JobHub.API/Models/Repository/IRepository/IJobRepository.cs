@@ -2,7 +2,7 @@
 {
 	public interface IJobRepository
 	{
-		IEnumerable<JobModel> GetAll();
+		List<JobModel> GetAll();
 		JobModel GetById(int id);
 		void Add(JobModel job);
 		void Update(JobModel job);

@@ -13,7 +13,7 @@ namespace JobHub.API.Models
 		public int Id { get; private set; }
 
 		[Required]
-		public string Url { get; set; }
+		public string? Url { get; set; }
 
 		//[Required]
 		public string? CompanyName { get; set; }
@@ -26,7 +26,12 @@ namespace JobHub.API.Models
 
 		// Navigation property for JobPageModel
 		public JobPageModel? JobPage { get; set; }
-		public JobModel(
+
+        public JobModel()
+        {
+			Id = ExtractIdFromUrl(this.Url);
+        }
+        public JobModel(
 			string url,
 			string companyName,
 			string jobName,

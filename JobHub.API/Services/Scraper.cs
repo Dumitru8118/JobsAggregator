@@ -42,7 +42,7 @@ namespace JobHub.API.Services
 				}
 				else
 				{
-					if ( page <= 2)
+					if ( page <= 5)
 					{
 						// Navigate to the webpage "https://www.ejobs.ro/locuri-de-munca"
 						driver.Navigate().GoToUrl(Constants.ejobsUrl + "/pagina" + page.ToString());
@@ -74,7 +74,6 @@ namespace JobHub.API.Services
 			{
 				jse.ExecuteScript("window.scrollBy(0,5)", "");
 			}
-
 
 			const string commonXPath = "//*[@id=\"__layout\"]/div/div[4]/section[2]/div/main/ul/li";
 
@@ -115,72 +114,145 @@ namespace JobHub.API.Services
 			// Navigate to the webpage "https://www.ejobs.ro/locuri-de-munca"
 			driver.Navigate().GoToUrl(job.Url);
 
+			// Find and click the accept cookies button (assuming it has a class or id)
+			try
+			{
+				var acceptCookiesButton = driver.FindElement(By.CssSelector(".CookiesPopup__AcceptButton"));
+				if (acceptCookiesButton != null)
+				{
+					acceptCookiesButton.Click();
+				}
+			}catch
+			{
+
+			}
 			JobPageModel jobPage;
 
+			// Scrape relevant data
+			var salary = string.Empty;
+			var city = string.Empty;
+			var jobType = string.Empty;
+			var expertiseLvl = string.Empty;
+			var industry = string.Empty;
+			var qualificationLvl = string.Empty;
+			var department = string.Empty;
+			var language = string.Empty;
+
+
 			// Find and Click the "See More" button
-			IWebElement showMoreOptionsButton;
+			//IWebElement showMoreOptionsButton = driver.FindElement(By.PartialLinkText("Vezi mai multe"));
+
+			var showMoreOptionsButton = driver.FindElement(RelativeBy.WithLocator(By.TagName("button"))
+	.Below(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[5]")));
+
+
+			//// Define XPaths for the elements to be checked
+			//string[] xpaths = new string[]
+			//{
+			//	"//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[1]",
+			//	"//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[2]",
+			//	"//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[1]/span/div",
+			//	"//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[2]/i",
+			//	"(//button[@class='JDCard__Bottom eButton eButton--Secondary'])[1]",
+			//	"(//button[@class='JDCard__Bottom eButton eButton--Secondary'])[2]"
+			//};
+
+			//foreach (var xpath in xpaths)
+			//{
+			//	try
+			//	{
+			//		// Try to find the element using the current XPath
+			//		if (showMoreOptionsButton != null)
+			//		{
+			//			break; // Element found, exit the loop
+			//		}
+			//	}
+			//	catch (NoSuchElementException)
+			//	{
+			//		// Element not found, continue to the next XPath
+			//	}
+			//}
+
+			if (showMoreOptionsButton != null) 
+			{
+				showMoreOptionsButton.Click();
+			}
 
 			try
 			{
-				showMoreOptionsButton = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[1]"));
-				
+													   //*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[1]
+				salary = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[1]")).Text;
 			}
-			catch (InvalidOperationException ex) 
+			catch
 			{
-				showMoreOptionsButton = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/button[2]"));
-			}                                                     
-			catch (Exception)
-			{
-				var salary = "Not found";
-				var city = "Not found";
-				var jobType = "Not found";
-				var expertiseLvl = "Not found";
-				var industry = "Not found";
-				var qualificationLvl = "Not found";
-				var department = "Not found";
-				var language = "Not found";
-
-				jobPage = new JobPageModel(
-				id: job.Id,
-				salary: salary,
-				city: city,
-				jobType: jobType,
-				expertiseLvl: expertiseLvl,
-				industry: industry,
-				qualificationLvl: qualificationLvl,
-				department: department,
-				language: language
-				);
-
-				return jobPage;
+				salary = "Not specified";
 			}
 
-			showMoreOptionsButton.Click();
-
-			
 			try
+			{										 //*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]
+				city = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]")).Text;
+			}
+			catch
 			{
-				// Scrape relevant data
-				var salary = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[1]")).Text;
-				var city = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]")).Text;
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]/div/div
+				city = "Not specified";
+			}
 
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]/div/div
+			try
+			{												//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]
+				jobType = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]")).Text;
+			}
+			catch
+			{
+				jobType = "Not specified";
+			}
 
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[2]
-				var jobType = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[3]")).Text;
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[3]/div
-				var expertiseLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]")).Text;
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[6]/div/div
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[4]/div
-				//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[5]/div/div
-				var industry = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[7]")).Text;
-				var qualificationLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[7]/div/div/a")).Text;
-				var department = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[8]/div/div/a")).Text;
-				var language = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[9]")).Text;
+			try
+			{												//*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[5]
+				expertiseLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[5]")).Text;
+			}
+			catch
+			{
+				expertiseLvl = "Not specified";
+			}
 
-				jobPage = new JobPageModel(
+			try
+			{                                           //*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[6]
+				industry = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[6]")).Text;
+			}
+			catch
+			{
+				industry = "Not specified";
+			}
+
+			try
+			{														 //*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[7]
+				qualificationLvl = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[7]")).Text;
+			}
+			catch
+			{
+				qualificationLvl = "Not specified";
+			}
+
+			try
+			{                                               //*[@id="__layout"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[8]
+				department = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[8]")).Text;
+			}
+			catch
+			{
+				department = "Not specified";
+			}
+
+			try
+			{	
+				language = driver.FindElement(By.XPath("//*[@id=\"__layout\"]/div/div[4]/section/div[2]/aside/div[2]/div/div[2]/div[2]/div[9]")).Text;
+			}
+			catch
+			{
+				language = "Not specified";
+			}
+
+
+			jobPage = new JobPageModel(
 				id: job.Id,
 				salary: salary,
 				city: city,
@@ -188,41 +260,19 @@ namespace JobHub.API.Services
 				expertiseLvl: expertiseLvl,
 				industry: industry,
 				qualificationLvl: qualificationLvl,
-				department: department,
+				department: department, 
 				language: language
 				);
 
-
-				Console.WriteLine(jobPage);
-				Console.WriteLine();
-			}
-			catch (InvalidOperationException ex) {
-
-				var salary = "Not found";
-				var city = "Not found";
-				var jobType = "Not found";
-				var expertiseLvl = "Not found";
-				var industry = "Not found";
-				var qualificationLvl = "Not found";
-				var department = "Not found";
-				var language = "Not found";
-
-				jobPage = new JobPageModel(
-				id: job.Id,
-				salary: salary,
-				city: city,
-				jobType: jobType,
-				expertiseLvl: expertiseLvl,
-				industry: industry,
-				qualificationLvl: qualificationLvl,
-				department: department,
-				language: language
-				);
-
-				Console.WriteLine(jobPage);
-				Console.WriteLine();
-
-			}
+			Console.WriteLine(jobPage.Salary);
+			Console.WriteLine(jobPage.City);
+			Console.WriteLine(jobPage.JobType);
+			Console.WriteLine(jobPage.ExpertiseLvl);
+			Console.WriteLine(jobPage.Industry);
+			Console.WriteLine(jobPage.QualificationLvl);
+			Console.WriteLine(jobPage.Department);
+			Console.WriteLine(jobPage.Language);
+			Console.WriteLine();
 
 			return jobPage;
 		}

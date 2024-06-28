@@ -36,8 +36,8 @@ namespace JobHub.API.Controllers
 		}
 
 		// GET: ScrapeController
-		[HttpPost]
-		public IEnumerable<string> Post()
+		[HttpPost("ScrapeJobs")]
+		public IEnumerable<string> PostJobs()
 		{
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
@@ -46,22 +46,37 @@ namespace JobHub.API.Controllers
 
 			_jobRepository.SaveRange(jobs);
 
-			List<JobPageModel> jobPages = new List<JobPageModel>();
-
-
 			foreach (JobModel job in jobs)
 			{
 				scrapedAnchorTexts.Add(job.Url);
-				JobPageModel jobPage = Scraper.ScrapeDescriptions(job);
-				jobPages.Add(jobPage);
 			}
-
-			_jobPageRepository.SaveRange(jobPages);
 
 			scrapedAnchorTexts.Add(scrapedAnchorTexts.Count.ToString());
 
 			ChromeDriverSingleton.Quit();
+
 			return scrapedAnchorTexts;
+		}
+
+		// GET: ScrapeController
+		[HttpPost("ScrapeJobPages")]
+		public IActionResult PostJobPages()
+		{
+			List<JobModel> jobs = _jobRepository.GetAll();
+
+			List<JobPageModel> jobPages = new List<JobPageModel>();
+
+			foreach (JobModel job in jobs)
+			{
+				JobPageModel jobPage = Scraper.ScrapeDescriptions(job);
+				jobPages.Add(jobPage);
+			}
+
+			ChromeDriverSingleton.Quit();
+
+			_jobPageRepository.SaveRange(jobPages);
+			
+			return Ok(jobPages);
 		}
 
 
