@@ -20,7 +20,7 @@ namespace JobHub.API.Services
 							var options = new ChromeOptions();
 							options.AddArgument("-ignore-certificate-errors");
 							options.AddArgument("-disable-popup-blocking");
-							options.AddArgument("-headless=new");
+							//options.AddArgument("-headless=new");
 
 							_driver = new ChromeDriver(options);
 						}

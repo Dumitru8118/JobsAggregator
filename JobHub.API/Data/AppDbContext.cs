@@ -12,7 +12,7 @@ namespace JobHub.API.Data
 		}
 
 		public DbSet<JobModel> Jobs { get; set; }
-		public DbSet<JobPageModel> JobPages { get; set; }
+		//public DbSet<JobPageModel> JobPages { get; set; }
 
 	}
 }

@@ -1,11 +1,11 @@
 ﻿using JobHub.API.Data;
-using JobHub.API.Models.Repository.IRepository;
+using JobHub.API.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace JobHub.API.Models.Repository
 {
-	public class JobRepository : IJobRepository
+    public class JobRepository : IJobRepository
 	{
 		private readonly AppDbContext _context;
 
@@ -77,13 +77,6 @@ namespace JobHub.API.Models.Repository
 				.Where(p => p.Id > reference)
 				.Take(pageSize)
 				.ToListAsync();
-
-
-			foreach (var job in jobs)
-			{
-				var jobPage = await _context.JobPages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == job.Id);
-				job.JobPage = jobPage;
-			}
 
 			var newReference = jobs.Count != 0 ? jobs.Last().Id : 0;
 

@@ -5,11 +5,8 @@ namespace JobHub.API.Models
 {
 	public class JobModel
 	{
-		/// <summary>
-		/// The id is going to be extracted from the URL 
-		/// Eg: /italian-speaker-remote-work-at-home-customer-support-specialist/1776354 => 1776354
-		/// </summary>
 		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int Id { get; private set; }
 
 		[Required]
@@ -25,13 +22,13 @@ namespace JobHub.API.Models
 		public string? DatePosted { get; set; }
 
 		// Navigation property for JobPageModel
-		public JobPageModel? JobPage { get; set; }
+		//public JobPageModel? JobPage { get; set; }
 
-        public JobModel()
-        {
-			Id = ExtractIdFromUrl(this.Url);
-        }
-        public JobModel(
+		public JobModel()
+		{
+
+		}
+		public JobModel(
 			string url,
 			string companyName,
 			string jobName,
@@ -41,7 +38,7 @@ namespace JobHub.API.Models
 			CompanyName = companyName;
 			JobName = jobName;
 			DatePosted = datePosted;
-			Id = ExtractIdFromUrl(url);
+			//Id = ExtractIdFromUrl(url);
 		}
 
 		// Method to extract the ID from the URL

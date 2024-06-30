@@ -10,39 +10,37 @@ using SeleniumExtras.WaitHelpers;
 using JobHub.API.Data;
 using JobHub.API.Models;
 using JobHub.API.Services;
-using JobHub.API.Models.Repository.IRepository;
 using AutoMapper;
 using JobHub.API.Dtos.Response;
 using JobHub.API.Models.Repository;
+using JobHub.API.Models.Providers;
+using JobHub.API.Models.Interfaces;
 
 namespace JobHub.API.Controllers
 {
-	[Route("api/[controller]")]
+    [Route("api/[controller]")]
 	[ApiController]
 	public class SelScrapeController : ControllerBase
 	{
 		private readonly IJobRepository _jobRepository;
-		private readonly IJobPageRepository _jobPageRepository;
 		private readonly IMapper _mapper;
 
 		public SelScrapeController(
 			IJobRepository repository,
-			IJobPageRepository jobPageRepository,
 			IMapper mapper)
 		{
 			_jobRepository = repository;
-			_jobPageRepository = jobPageRepository;
 			_mapper = mapper;
 		}
 
 		// GET: ScrapeController
-		[HttpPost("ScrapeJobs")]
-		public IEnumerable<string> PostJobs()
+		[HttpPost("ScrapeFromHipo")]
+		public IEnumerable<string> PostHipoJobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
 
-			List<JobModel> jobs = Scraper.ScrapeJobs();
+			List<JobModel> jobs = MultiScraper<Hipo>.ScrapeJobs(pagesNumber);
 
 			_jobRepository.SaveRange(jobs);
 
@@ -59,25 +57,51 @@ namespace JobHub.API.Controllers
 		}
 
 		// GET: ScrapeController
-		[HttpPost("ScrapeJobPages")]
-		public IActionResult PostJobPages()
+		[HttpPost("ScrapeFromEJobs")]
+		public IEnumerable<string> PostEjobsJobs(int pagesNumber)
 		{
-			List<JobModel> jobs = _jobRepository.GetAll();
+			// Initialize a list to store the scraped anchor texts
+			List<string> scrapedAnchorTexts = new List<string>();
 
-			List<JobPageModel> jobPages = new List<JobPageModel>();
+			List<JobModel> jobs = MultiScraper<EJobs>.ScrapeJobs(pagesNumber);
+
+			_jobRepository.SaveRange(jobs);
 
 			foreach (JobModel job in jobs)
 			{
-				JobPageModel jobPage = Scraper.ScrapeDescriptions(job);
-				jobPages.Add(jobPage);
+				scrapedAnchorTexts.Add(job.Url);
 			}
+
+			scrapedAnchorTexts.Add(scrapedAnchorTexts.Count.ToString());
 
 			ChromeDriverSingleton.Quit();
 
-			_jobPageRepository.SaveRange(jobPages);
-			
-			return Ok(jobPages);
+			return scrapedAnchorTexts;
 		}
+
+		// GET: ScrapeController
+		[HttpPost("ScrapeFromJobRadar24")]
+		public IEnumerable<string> PostJobRadar24Jobs(int pagesNumber)
+		{
+			// Initialize a list to store the scraped anchor texts
+			List<string> scrapedAnchorTexts = new List<string>();
+
+			List<JobModel> jobs = MultiScraper<JobRadar24>.ScrapeJobs(pagesNumber);
+
+			_jobRepository.SaveRange(jobs);
+
+			foreach (JobModel job in jobs)
+			{
+				scrapedAnchorTexts.Add(job.Url);
+			}
+
+			scrapedAnchorTexts.Add(scrapedAnchorTexts.Count.ToString());
+
+			ChromeDriverSingleton.Quit();
+
+			return scrapedAnchorTexts;
+		}
+
 
 
 		[HttpGet("GetWithKeysetPagination")]
@@ -104,10 +128,6 @@ namespace JobHub.API.Controllers
 				 "Some Job",
 				 "Some Date"
 			);
-
-			var jobPage = new JobPageModel(1776354, "12321", "PIT", "test", "test", "test", " test", "test", "test");
-
-			job.JobPage = jobPage;
 
 			var returnJob = _mapper.Map<JobItemDto>(job);
 			

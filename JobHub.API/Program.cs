@@ -1,6 +1,6 @@
 using JobHub.API.Data;
+using JobHub.API.Models.Interfaces;
 using JobHub.API.Models.Repository;
-using JobHub.API.Models.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options
 		=> options.UseNpgsql(cnnString));
 
 builder.Services.AddScoped<IJobRepository, JobRepository>();
-builder.Services.AddScoped<IJobPageRepository, JobPageRepository>();
+//builder.Services.AddScoped<IJobPageRepository, JobPageRepository>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
