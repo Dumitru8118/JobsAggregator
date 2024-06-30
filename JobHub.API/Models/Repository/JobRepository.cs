@@ -14,16 +14,6 @@ namespace JobHub.API.Models.Repository
 			_context = context;
 		}
 
-		public void Add(JobModel job)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Delete(JobModel job)
-		{
-			throw new NotImplementedException();
-		}
-
 		public  List<JobModel> GetAll()
 		{
 			return _context.Jobs.Select(job => new JobModel()
@@ -83,6 +73,52 @@ namespace JobHub.API.Models.Repository
 			var pagedResponse = new PagedResponseKeyset<JobModel>(jobs, newReference);
 
 			return pagedResponse;
+		}
+		public async Task<bool> DeleteJobByIdAsync(int id)
+		{
+			var job = await _context.Jobs.FindAsync(id);
+			if (job == null)
+			{
+				return false; // Job with the specified ID not found
+			}
+
+			_context.Jobs.Remove(job);
+			await _context.SaveChangesAsync();
+			return true; // Job successfully deleted
+		}
+
+		public async Task<(bool Success, int DeletedCount)> RemoveDuplicatesAsync()
+		{
+			var duplicatesQuery = @"
+				DELETE FROM ""Jobs""
+				WHERE ctid NOT IN (
+					SELECT MIN(ctid)
+					FROM ""Jobs""
+					GROUP BY ""Url""
+				);
+			";
+
+			try
+			{
+				int rowsAffected = await _context.Database.ExecuteSqlRawAsync(duplicatesQuery);
+
+				// If rowsAffected > 0, duplicates were deleted
+				// If rowsAffected == 0, no duplicates were found
+
+				if (rowsAffected > 0)
+				{
+					return (true, rowsAffected);
+				}
+				else
+				{
+					return (false, rowsAffected); // No duplicates found
+				}
+			}
+			catch (Exception ex)
+			{
+				// Log the exception or handle it accordingly
+				throw new Exception("Failed to remove duplicates", ex);
+			}
 		}
 
 	}

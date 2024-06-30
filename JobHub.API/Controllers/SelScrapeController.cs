@@ -103,7 +103,6 @@ namespace JobHub.API.Controllers
 		}
 
 
-
 		[HttpGet("GetWithKeysetPagination")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -117,6 +116,22 @@ namespace JobHub.API.Controllers
 			var pagedJobsDto = _mapper.Map<PagedResponseKeysetDto<JobItemDto>>(pagedJobs);
 
 			return Ok(pagedJobsDto);
+		}
+
+		// DELETE api/job/duplicates
+		[HttpDelete("duplicates")]
+		public async Task<IActionResult> DeleteDuplicates()
+		{
+			var result = await _jobRepository.RemoveDuplicatesAsync();
+
+			if (result.Success)
+			{
+				return Ok($"{result.DeletedCount} Duplicates deleted successfully.");
+			}
+			else
+			{
+				return StatusCode(500, "Failed to delete duplicates."); // You can customize the error response
+			}
 		}
 
 		[HttpGet]
@@ -134,5 +149,7 @@ namespace JobHub.API.Controllers
 			return Ok(returnJob); 
 		
 		}
+
+
 	}
 }

@@ -4,10 +4,9 @@
     {
         List<JobModel> GetAll();
         JobModel GetById(int id);
-        void Add(JobModel job);
-        void Update(JobModel job);
-        void Delete(JobModel job);
         Task SaveRange(List<JobModel> jobs);
         Task<PagedResponseKeyset<JobModel>> GetWithKeysetPagination(int reference, int pageSize);
-    }
+		Task<bool> DeleteJobByIdAsync(int id);
+		Task<(bool Success, int DeletedCount)> RemoveDuplicatesAsync();
+	}
 }
