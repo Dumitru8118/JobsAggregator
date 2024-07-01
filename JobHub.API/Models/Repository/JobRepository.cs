@@ -1,4 +1,5 @@
 ﻿using JobHub.API.Data;
+using JobHub.API.Models.Database;
 using JobHub.API.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileSystemGlobbing;
@@ -14,9 +15,9 @@ namespace JobHub.API.Models.Repository
 			_context = context;
 		}
 
-		public  List<JobModel> GetAll()
+		public  List<Job> GetAll()
 		{
-			return _context.Jobs.Select(job => new JobModel()
+			return _context.Jobs.Select(job => new Job()
 			{
 				Url = job.Url,
 				CompanyName = job.CompanyName,
@@ -25,12 +26,12 @@ namespace JobHub.API.Models.Repository
 			}).ToList();
 		}
 
-		public JobModel GetById(int id)
+		public Job GetById(int id)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void Update(JobModel job)
+		public void Update(Job job)
 		{
 			throw new NotImplementedException();
 		}
@@ -40,7 +41,7 @@ namespace JobHub.API.Models.Repository
 		/// </summary>
 		/// <param name="jobs">List of jobs to be saved. </param>
 		/// <exception cref="ArgumentException"></exception>
-		public async Task SaveRange(List<JobModel> jobs)
+		public async Task SaveRange(List<Job> jobs)
 		{
 			if (jobs == null || !jobs.Any())
 			{
@@ -48,32 +49,33 @@ namespace JobHub.API.Models.Repository
 			}
 
 			//await _context.Jobs.AddRangeAsync(jobs);
-			IEnumerable<JobModel> listOfJobs = jobs;
+			IEnumerable<Job> listOfJobs = jobs;
 
 			int batchSize = 100;
 
 			for (int i = 0; i < listOfJobs.ToList().Count; i += batchSize)
 			{
-				IEnumerable<JobModel> batch = listOfJobs.Skip(i).Take(batchSize).ToList();
+				IEnumerable<Job> batch = listOfJobs.Skip(i).Take(batchSize).ToList();
 				await _context.Jobs.AddRangeAsync(batch);
 			}
 			_context.SaveChanges();
 		}
 
-		public async Task<PagedResponseKeyset<JobModel>> GetWithKeysetPagination(int reference, int pageSize)
+		public async Task<PagedResponseKeyset<Job>> GetWithKeysetPagination(int reference, int pageSize)
 		{
 			var jobs = await _context.Jobs.AsNoTracking()
 				.OrderBy(x => x.Id)
-				.Where(p => p.Id > reference)
+				.Where(p => p.Id > 0)
 				.Take(pageSize)
 				.ToListAsync();
 
-			var newReference = jobs.Count != 0 ? jobs.Last().Id : 0;
+			var newReference = jobs.Count != 0 ? jobs.Last().Id :0;
 
-			var pagedResponse = new PagedResponseKeyset<JobModel>(jobs, newReference);
+			var pagedResponse = new PagedResponseKeyset<Job>(jobs, newReference);
 
 			return pagedResponse;
 		}
+
 		public async Task<bool> DeleteJobByIdAsync(int id)
 		{
 			var job = await _context.Jobs.FindAsync(id);

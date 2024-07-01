@@ -1,8 +1,8 @@
-﻿namespace JobHub.API.Dtos.Response
+﻿namespace JobHub.API.Models.Dtos.Response
 {
     public record PagedResponseKeysetDto<T>
     {
-        public int Reference { get; init; }
+        public string Reference { get; init; }
         public List<T> Data { get; init; }
     }
 }

@@ -1,0 +1,37 @@
+[
+  {
+    "FirstName": "test",
+    "LastName": "test",
+    "Password": "test123$%^&",
+    "Email": "test@test.com",
+    "Role": "Administrator"
+  },
+  {
+    "FirstName": "Anthony",
+    "LastName": "Murray",
+    "Password": "anthony.murray",
+    "Email": "amurray@hrcorp.com",
+    "Role": "User"
+  },
+  {
+    "FirstName": "Tatiana",
+    "LastName": "Rivers",
+    "Password": "tatiana.rivers",
+    "Email": "trivers@hrcorp.com",
+    "Role": "User"
+  },
+  {
+    "FirstName": "Thomas",
+    "LastName": "Scott",
+    "Password": "thomas.scott",
+    "Email": "tscott@hrcorp.com",
+    "Role": "User"
+  },
+  {
+    "FirstName": "Ruddy",
+    "LastName": "Bettam",
+    "Password": "ruddy.bettam",
+    "Email": "rbettam@hrcorp.com",
+    "Role": "User"
+  }
+]

@@ -8,13 +8,15 @@ using System.Xml.Linq;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using JobHub.API.Data;
-using JobHub.API.Models;
 using JobHub.API.Services;
 using AutoMapper;
-using JobHub.API.Dtos.Response;
 using JobHub.API.Models.Repository;
 using JobHub.API.Models.Providers;
 using JobHub.API.Models.Interfaces;
+using JobHub.API.Models.Database;
+using JobHub.API.Models.Dtos.Response;
+using JobHub.API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JobHub.API.Controllers
 {
@@ -40,11 +42,11 @@ namespace JobHub.API.Controllers
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
 
-			List<JobModel> jobs = MultiScraper<Hipo>.ScrapeJobs(pagesNumber);
+			List<Job> jobs = MultiScraper<Hipo>.ScrapeJobs(pagesNumber);
 
 			_jobRepository.SaveRange(jobs);
 
-			foreach (JobModel job in jobs)
+			foreach (Job job in jobs)
 			{
 				scrapedAnchorTexts.Add(job.Url);
 			}
@@ -58,16 +60,17 @@ namespace JobHub.API.Controllers
 
 		// GET: ScrapeController
 		[HttpPost("ScrapeFromEJobs")]
+		[Authorize(Roles = "Administrator")]
 		public IEnumerable<string> PostEjobsJobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
 
-			List<JobModel> jobs = MultiScraper<EJobs>.ScrapeJobs(pagesNumber);
+			List<Job> jobs = MultiScraper<EJobs>.ScrapeJobs(pagesNumber);
 
 			_jobRepository.SaveRange(jobs);
 
-			foreach (JobModel job in jobs)
+			foreach (Job job in jobs)
 			{
 				scrapedAnchorTexts.Add(job.Url);
 			}
@@ -81,16 +84,17 @@ namespace JobHub.API.Controllers
 
 		// GET: ScrapeController
 		[HttpPost("ScrapeFromJobRadar24")]
+		//[Authorize(Roles = "Administrator")]
 		public IEnumerable<string> PostJobRadar24Jobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
 
-			List<JobModel> jobs = MultiScraper<JobRadar24>.ScrapeJobs(pagesNumber);
+			List<Job> jobs = MultiScraper<JobRadar24>.ScrapeJobs(pagesNumber);
 
 			_jobRepository.SaveRange(jobs);
 
-			foreach (JobModel job in jobs)
+			foreach (Job job in jobs)
 			{
 				scrapedAnchorTexts.Add(job.Url);
 			}
@@ -113,7 +117,7 @@ namespace JobHub.API.Controllers
 
 			var pagedJobs = await _jobRepository.GetWithKeysetPagination(reference, pageSize);
 
-			var pagedJobsDto = _mapper.Map<PagedResponseKeysetDto<JobItemDto>>(pagedJobs);
+			var pagedJobsDto = _mapper.Map<PagedResponseKeysetDto<JobItemResponse>>(pagedJobs);
 
 			return Ok(pagedJobsDto);
 		}
@@ -133,23 +137,5 @@ namespace JobHub.API.Controllers
 				return StatusCode(500, "Failed to delete duplicates."); // You can customize the error response
 			}
 		}
-
-		[HttpGet]
-		public IActionResult GetJob()
-		{
-			var job = new JobModel(
-				 "/work-at-home-customer-support-specialist/1776354",
-				 "Some Company",
-				 "Some Job",
-				 "Some Date"
-			);
-
-			var returnJob = _mapper.Map<JobItemDto>(job);
-			
-			return Ok(returnJob); 
-		
-		}
-
-
 	}
 }

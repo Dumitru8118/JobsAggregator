@@ -1,16 +1,17 @@
-﻿using JobHub.API.Models;
-using OpenQA.Selenium.Chrome;
+﻿using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using JobHub.API.Models.Providers;
 using JobHub.API.Models.Interfaces;
+using JobHub.API.Models.Database;
+using JobHub.API.Models;
 
 namespace JobHub.API.Services
 {
-	public class MultiScraper<T> where T : class, IJobProvider, new()	
+    public class MultiScraper<T> where T : class, IJobProvider, new()	
 	{
-		public static List<JobModel> ScrapeJobs(int pagesNumber)
+		public static List<Job> ScrapeJobs(int pagesNumber)
 		{
-			List<JobModel> jobs = new List<JobModel>();
+			List<Job> jobs = new List<Job>();
 
 			ChromeDriver driver = ChromeDriverSingleton.Instance;
 
@@ -65,9 +66,9 @@ namespace JobHub.API.Services
 			return jobs;
 		}
 
-		public static List<JobModel> GetJobs(ChromeDriver driver, T jobProvider)
+		public static List<Job> GetJobs(ChromeDriver driver, T jobProvider)
 		{
-			List<JobModel> jobs = new List<JobModel>();
+			List<Job> jobs = new List<Job>();
 
 			jobProvider.ScrollToBottom(driver);
 
@@ -113,7 +114,7 @@ namespace JobHub.API.Services
 				Console.WriteLine();
 
 				// Save the scraped job to the database
-				JobModel jobEntity = new JobModel(url, jobTitle, jobCompany, jobDatePosted);
+				Job jobEntity = new Job(url, jobTitle, jobCompany, jobDatePosted);
 
 				jobs.Add(jobEntity);
 			}

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using JobHub.API.Dtos.Response;
 using JobHub.API.Models;
+using JobHub.API.Models.Dtos.Response;
 
 namespace JobHub.API.Mappers
 {

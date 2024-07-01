@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace JobHub.API.Dtos.Response
+namespace JobHub.API.Models.Dtos.Response
 {
-    public class JobItemDto
+    public class JobItemResponse
     {
         public string Url { get; set; }
         public string CompanyName { get; set; }
