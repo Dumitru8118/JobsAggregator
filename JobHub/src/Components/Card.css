@@ -1,0 +1,16 @@
+.card-img-left {
+    width: 60px; /* Adjust size as needed */
+    height: 60px; /* Adjust size as needed */
+    margin-right: 15px;
+    object-fit: contain;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    min-height: 150px; /* Adjust this value as needed */
+}
+
+.card-body {
+    flex: 1;
+}

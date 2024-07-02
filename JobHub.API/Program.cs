@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 
@@ -19,15 +20,6 @@ internal class Program
 	private static void Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
-
-		// Add services to the container.
-
-
-		builder.Services.AddControllers(options =>
-						options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
-					.AddNewtonsoftJson(options =>
-						options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-					);
 
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
@@ -47,6 +39,20 @@ internal class Program
 					BearerFormat = "JWT",
 					Scheme = "bearer"
 				});
+				//option.AddSecurityRequirement(new OpenApiSecurityRequirement
+				//{
+				//	{
+				//		new OpenApiSecurityScheme
+				//		{
+				//			Reference = new OpenApiReference
+				//			{
+				//				Type = ReferenceType.SecurityScheme,
+				//				Id = "Bearer"
+				//			}
+				//		},
+				//		new string[] {}
+				//	}
+				//});
 				option.OperationFilter<AuthResponsesOperationFilter>();
 			}
 		);
@@ -63,7 +69,9 @@ internal class Program
 				{
 					b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName); // If using migrations
 					b.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
-				});
+				})
+				.EnableDetailedErrors()
+                .EnableSensitiveDataLogging();
 			}
 		});
 
@@ -75,39 +83,80 @@ internal class Program
 		builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
-		var jwtSettings = builder.Configuration.GetSection("Jwt");
 
-		builder.Services.AddAuthentication(options =>
+		var jwtSettings = builder.Configuration.GetSection("Jwt");
+		var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+
+		builder.Services.AddAuthentication(x =>
 		{
-			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-			options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-		}).AddJwtBearer(o =>
+			x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+		})
+		.AddJwtBearer(x =>
 		{
-			o.TokenValidationParameters = new TokenValidationParameters
+			x.RequireHttpsMetadata = false;
+			x.SaveToken = true;
+			x.TokenValidationParameters = new TokenValidationParameters
 			{
-				ValidIssuer = builder.Configuration["Jwt:Issuer"],
-				ValidAudience = builder.Configuration["Jwt:Audience"],
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"])),
-				ValidateIssuer = true,
-				ValidateAudience = true,
-				ValidateLifetime = false,
-				ValidateIssuerSigningKey = true
+				ValidateIssuerSigningKey = true,
+				IssuerSigningKey = new SymmetricSecurityKey(key),
+				ValidateIssuer = false,
+				ValidateAudience = false
+			};
+
+			// Add events to log errors
+			x.Events = new JwtBearerEvents
+			{
+				OnAuthenticationFailed = context =>
+				{
+					// Log the exception message
+					var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+					Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+					Console.WriteLine($"JWT Token: {token}");
+					if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+					{
+						context.Response.Headers.Add("Token-Expired", "true");
+					}
+					return Task.CompletedTask;
+				},
+				OnChallenge = context =>
+				{
+					// Log challenge details
+					var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+					Console.WriteLine($"OnChallenge error: {context.Error}, description: {context.ErrorDescription}");
+					Console.WriteLine($"JWT Token: {token}");
+					return Task.CompletedTask;
+				}
 			};
 		});
+		// Register TokenService with the secret from configuration
+		builder.Services.AddSingleton(new TokenService(jwtSettings["Key"]));
 
-		builder.Services.AddCors(policyBuilder =>
-			policyBuilder.AddDefaultPolicy(policy =>
-				policy.WithOrigins("*")
-				.AllowAnyHeader()
-				.AllowAnyHeader())
-		);
+		builder.Services.AddCors(options =>
+		{
+			options.AddDefaultPolicy(policy =>
+			{
+				policy.AllowAnyOrigin()
+					  .AllowAnyMethod()
+					  .AllowAnyHeader();
+			});
+		});
 
+
+		// Add services to the container.
+		builder.Services.AddControllers(options =>
+						options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+					.AddNewtonsoftJson(options =>
+						options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+					);
 
 		// Declared services
 		builder.Services.AddScoped<IJobRepository, JobRepository>();
 		builder.Services.AddScoped<DBSeeder>();
 		builder.Services.AddTransient<AuthService>();
+
+
 
 		var app = builder.Build();
 
@@ -119,13 +168,15 @@ internal class Program
 			app.UseSeedDB();
 		}
 
+
+
 		app.UseCors();
 
 		app.UseHttpsRedirection();
 
-		app.UseAuthorization();
 		app.UseAuthentication();
 		app.UseAuthorization();
+
 
 		app.MapControllers();
 

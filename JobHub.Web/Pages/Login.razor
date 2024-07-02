@@ -1,0 +1,44 @@
+﻿@page "/login"
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Login</h3>
+
+<form @onsubmit="HandleLogin">
+    <label for="email">Email:</label>
+    <input type="email" id="email" @bind="Email" /><br />
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" @bind="Password" /><br />
+
+    <button type="submit">Login</button>
+</form>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+
+@code {
+    private string Email { get; set; }
+    private string Password { get; set; }
+    private string ErrorMessage { get; set; }
+
+    private async Task HandleLogin()
+    {
+        var loginModel = new { Email, Password };
+        var response = await HttpClient.PostAsJsonAsync("/api/auth/login", loginModel);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var token = await response.Content.ReadAsStringAsync();
+            // Store the token securely (e.g., using local storage or secure storage)
+            // Navigate to the home page or wherever after successful login
+            NavigationManager.NavigateTo("/", true);
+        }
+        else
+        {
+            ErrorMessage = "Invalid email or password";
+        }
+    }
+}

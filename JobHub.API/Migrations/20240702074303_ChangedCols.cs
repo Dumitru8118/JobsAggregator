@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JobHub.API.Migrations
 {
     /// <inheritdoc />
-    public partial class ChangedIdsBackToIts : Migration
+    public partial class ChangedCols : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
