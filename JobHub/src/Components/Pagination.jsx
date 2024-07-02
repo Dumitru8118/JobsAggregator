@@ -10,7 +10,7 @@ const PaginationComponent = ({ currentPage, totalPages, onNextPage }) => {
             <Pagination.Item key={page} active={page === currentPage} onClick={() => onNextPage(page)}>
                 {page}
             </Pagination.Item>
-        );
+        )
     }
 
     return (

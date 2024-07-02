@@ -37,6 +37,7 @@ namespace JobHub.API.Controllers
 
 		// GET: ScrapeController
 		[HttpPost("ScrapeFromHipo")]
+		[Authorize(Roles = "Administrator")]
 		public IEnumerable<string> PostHipoJobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
@@ -84,7 +85,7 @@ namespace JobHub.API.Controllers
 
 		// GET: ScrapeController
 		[HttpPost("ScrapeFromJobRadar24")]
-		//[Authorize(Roles = "Administrator")]
+		[Authorize(Roles = "Administrator")]
 		public IEnumerable<string> PostJobRadar24Jobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
@@ -107,10 +108,10 @@ namespace JobHub.API.Controllers
 		}
 
 
-		[HttpGet("GetWithKeysetPagination")]
+		[HttpGet("GetItems")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		public async Task<IActionResult> GetWithKeysetPagination(int reference = 0, int pageSize = 40)
+		public async Task<IActionResult> GetItems(int reference = 0, int pageSize = 40)
 		{
 			if (pageSize <= 0)
 				return BadRequest($"{nameof(pageSize)} size must be greater than 0.");
@@ -124,6 +125,7 @@ namespace JobHub.API.Controllers
 
 		// DELETE api/job/duplicates
 		[HttpDelete("duplicates")]
+		[Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> DeleteDuplicates()
 		{
 			var result = await _jobRepository.RemoveDuplicatesAsync();

@@ -1,39 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Container } from 'react-bootstrap';
-import JobList from './components/JobList';
-import PaginationComponent from './components/Pagination';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
 
-const App = () => {
-    const [jobs, setJobs] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [hasNextPage, setHasNextPage] = useState(false); // Assuming backend indicates if there's a next page
+import Login from './Components/LoginSignup/Login';
+import SignUp from './Components/LoginSignup/Signup';
+import Dashboard from './Components/Home';
+import Navbar from './Components/Navbar';
 
-    const fetchJobs = async (page) => {
-        try {
-            const response = await axios.get(`/api/jobs?page=${page}&pageSize=40`);
-            setJobs(response.data.jobs);
-            setHasNextPage(response.data.hasNextPage); // Adjust this based on your backend response
-            setCurrentPage(page);
-        } catch (error) {
-            console.error('Error fetching jobs:', error);
-        }
-    };
+function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [jwtToken, setJwtToken] = useState(null);
+
 
     useEffect(() => {
-        fetchJobs(1);  // Fetch jobs for the first page when component mounts
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            setJwtToken(token);
+            setIsLoggedIn(true);
+        }
     }, []);
 
-    const handleNextPage = (page) => {
-        fetchJobs(page);
+    const handleLoginSuccess = (token) => {
+        console.log('Login successful. Token:', token); // Debug statement
+        localStorage.setItem('jwtToken', token);
+        setJwtToken(token);
+        setIsLoggedIn(true);
+        window.location.href = '/home';
+        // navigate('/home');
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('jwtToken');
+        setIsLoggedIn(false);
+        setJwtToken(null);
+        window.location.href = '/sign-in';
+    };
+
+    console.log('App component re-rendered. isLoggedIn:', isLoggedIn); // Debug statement
+    console.log(localStorage.getItem("jwtToken"))
+
     return (
-        <Container className="mt-5">
-            <JobList jobs={jobs} />
-            <PaginationComponent currentPage={currentPage} totalPages={totalPages} onNextPage={handleNextPage} />
-        </Container>
+        <Router>
+            <div className="App">
+                <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                <Routes>
+                    {/* <Route
+                        exact
+                        path="/home"
+                        element={isLoggedIn ? <Navigate to="/home" /> : <Navigate to="/sign-in" />}
+                    /> */}
+                    <Route path="/sign-in" element={<Login handleLoginSuccess={handleLoginSuccess} />} />
+                    <Route path="/sign-up" element={<SignUp />} />
+                    <Route path="/" element={isLoggedIn ?   <Navigate to="/home" /> : <Navigate to="/sign-in" />} />
+                </Routes>
+            </div>
+        </Router>
     );
-};
+}
 
 export default App;

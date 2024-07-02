@@ -13,12 +13,14 @@ namespace JobHub.API.Controllers
 	{
 		private readonly IMapper mapper;
 		private readonly ILogger logger;
+		private readonly TokenService tokenService;
 		private readonly AuthService authService;
-		public AuthController(ILogger logger, AuthService authService, IMapper mapper)
+		public AuthController(ILogger logger, AuthService authService, IMapper mapper, TokenService tokenService)
 		{
 			this.authService = authService;
 			this.mapper = mapper;
 			this.logger = logger;
+			this.tokenService = tokenService;
 		}
 
 		[AllowAnonymous]
@@ -32,8 +34,12 @@ namespace JobHub.API.Controllers
 					if (this.authService.IsAuthenticated(userModel.Email, userModel.Password))
 					{
 						var user = this.authService.GetByEmail(userModel.Email);
-						var token = this.authService.GenerateJwtToken(userModel.Email, user.Role);
-						return Ok(token);
+
+						//var token = this.authService.GenerateJwtToken(userModel.Email, user.Role);
+
+						var token = this.tokenService.GenerateToken(userModel.Email, user.Role);
+
+						return Ok(new { Token = token });
 					}
 					return BadRequest("Email or password are not correct!");
 				}
@@ -70,7 +76,9 @@ namespace JobHub.API.Controllers
 
 					if (user != null)
 					{
-						var token = this.authService.GenerateJwtToken(user.Email, mappedModel.Role);
+						//var token = this.authService.GenerateJwtToken(user.Email, mappedModel.Role);
+						var token = this.tokenService.GenerateToken(userModel.Email, user.Role);
+
 						return Ok(Json(token));
 
 					}

@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JobHub.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240630084130_ChangedIdsBackToIts")]
-    partial class ChangedIdsBackToIts
+    [Migration("20240702074303_ChangedCols")]
+    partial class ChangedCols
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

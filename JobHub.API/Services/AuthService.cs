@@ -1,6 +1,7 @@
 ﻿using JobHub.API.Data;
 using JobHub.API.Helpers;
 using JobHub.API.Models.Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -64,31 +65,32 @@ namespace JobHub.API.Services
 			this.dataContext.SaveChanges();
 			return userEntity.Entity;
 		}
-		public string GenerateJwtToken(string email, string role)
-		{
-			var issuer = this.configuration["Jwt:Issuer"];
-			var audience = this.configuration["Jwt:Audience"];
-			var key = Encoding.ASCII.GetBytes(this.configuration["Jwt:Key"]);
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Subject = new ClaimsIdentity(new[]
-				{
-							new Claim("Id", Guid.NewGuid().ToString()),
-							new Claim(JwtRegisteredClaimNames.Sub, email),
-							new Claim(JwtRegisteredClaimNames.Email, email),
-							new Claim(ClaimTypes.Role, role),
-							new Claim(JwtRegisteredClaimNames.Jti,
-							Guid.NewGuid().ToString())
-						}),
-				Expires = DateTime.UtcNow.AddMinutes(20),
-				Issuer = issuer,
-				Audience = audience,
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
-			};
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var token = tokenHandler.CreateToken(tokenDescriptor);
-			return tokenHandler.WriteToken(token);
-		}
+		//public string GenerateJwtToken(string email, string role)
+		//{
+		//	var issuer = this.configuration["Jwt:Issuer"];
+		//	var audience = this.configuration["Jwt:Audience"];
+		//	var key = Encoding.ASCII.GetBytes(this.configuration["Jwt:Key"]);
+		//	var tokenDescriptor = new SecurityTokenDescriptor
+		//	{
+		//		Subject = new ClaimsIdentity(new[]
+		//		{
+		//					new Claim("Id", Guid.NewGuid().ToString()),
+		//					new Claim(JwtRegisteredClaimNames.Sub, email),
+		//					new Claim(JwtRegisteredClaimNames.Email, email),
+		//					new Claim(ClaimTypes.Role, role),
+		//					new Claim(JwtRegisteredClaimNames.Jti,
+		//					Guid.NewGuid().ToString())
+		//				}),
+		//		Expires = DateTime.UtcNow.AddMinutes(120),
+		//		Issuer = issuer,
+		//		Audience = audience,
+		//		//SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
+		//	};
+		//	var tokenHandler = new JwtSecurityTokenHandler();
+		//	var token = tokenHandler.CreateToken(tokenDescriptor);
+		//	return tokenHandler.WriteToken(token);
+		//}
+
 
 		public string DecodeEmailFromToken(string token)
 		{

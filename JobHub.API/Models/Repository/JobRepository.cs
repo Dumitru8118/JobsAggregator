@@ -65,7 +65,7 @@ namespace JobHub.API.Models.Repository
 		{
 			var jobs = await _context.Jobs.AsNoTracking()
 				.OrderBy(x => x.Id)
-				.Where(p => p.Id > 0)
+				.Where(p => p.Id > reference)
 				.Take(pageSize)
 				.ToListAsync();
 
