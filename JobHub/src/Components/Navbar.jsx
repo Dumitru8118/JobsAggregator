@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css";
 
-const Navbar = ({ isLoggedIn, handleLogout }) => {
+const Navbar = ({ isLoggedIn, handleLogout, user }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light fixed-top">
       <div className="container">
@@ -26,11 +26,15 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
               </>
             ) : (
               <>
+
+              { user["role"] == "Administrator" ? (
                 <li className="nav-item">
                   <Link className="nav-link btn btn-link" to="/admin">
                     Admin
                   </Link>
                 </li>
+              ): <li/>}
+                
                 <li className="nav-item">
                   <button
                     className="nav-link btn btn-link"

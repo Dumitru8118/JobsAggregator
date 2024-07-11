@@ -1,4 +1,5 @@
 ﻿using JobHub.API.Models.Database;
+using JobHub.API.Models.Repository;
 
 namespace JobHub.API.Models.Interfaces
 {
@@ -9,6 +10,6 @@ namespace JobHub.API.Models.Interfaces
         Task SaveRange(List<Job> jobs);
         Task<PagedResponseKeyset<Job>> GetWithKeysetPagination(int reference, int pageSize);
 		Task<bool> DeleteJobByIdAsync(int id);
-		Task<(bool Success, int DeletedCount)> RemoveDuplicatesAsync();
+		Task<JsonDuplicates> RemoveDuplicatesAsync();
 	}
 }

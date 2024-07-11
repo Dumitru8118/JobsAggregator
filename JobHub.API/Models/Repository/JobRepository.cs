@@ -6,6 +6,17 @@ using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace JobHub.API.Models.Repository
 {
+    public class JsonDuplicates
+    {
+        public bool Succes { get; set; }
+        public int rowsAffected { get; set; }
+
+        public JsonDuplicates()
+        {
+
+        }
+    }
+
     public class JobRepository : IJobRepository
 	{
 		private readonly AppDbContext _context;
@@ -89,7 +100,7 @@ namespace JobHub.API.Models.Repository
 			return true; // Job successfully deleted
 		}
 
-		public async Task<(bool Success, int DeletedCount)> RemoveDuplicatesAsync()
+         public async Task<JsonDuplicates> RemoveDuplicatesAsync()
 		{
 			var duplicatesQuery = @"
 				DELETE FROM ""Jobs""
@@ -109,11 +120,19 @@ namespace JobHub.API.Models.Repository
 
 				if (rowsAffected > 0)
 				{
-					return (true, rowsAffected);
+
+                    JsonDuplicates jres = new JsonDuplicates();
+                    jres.rowsAffected = rowsAffected;
+					jres.Succes = true;
+
+                    return jres;
 				}
 				else
 				{
-					return (false, rowsAffected); // No duplicates found
+                    JsonDuplicates jres = new JsonDuplicates();
+                    jres.rowsAffected = 0;
+                    jres.Succes = false;
+                    return jres; // No duplicates found
 				}
 			}
 			catch (Exception ex)

@@ -5,8 +5,8 @@ import "./Home.css"
 
 const Dashboard = () => {
     const [jobs, setJobs] = useState([]);
-    const [reference, setReference] = useState(0);
-    const pageSize = 40; // Constant page size
+    const [reference, setReference] = useState(20);
+    const pageSize = 20; // Constant page size
 
     useEffect(() => {
         fetchJobs();

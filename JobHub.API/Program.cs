@@ -39,20 +39,6 @@ internal class Program
 					BearerFormat = "JWT",
 					Scheme = "bearer"
 				});
-				//option.AddSecurityRequirement(new OpenApiSecurityRequirement
-				//{
-				//	{
-				//		new OpenApiSecurityScheme
-				//		{
-				//			Reference = new OpenApiReference
-				//			{
-				//				Type = ReferenceType.SecurityScheme,
-				//				Id = "Bearer"
-				//			}
-				//		},
-				//		new string[] {}
-				//	}
-				//});
 				option.OperationFilter<AuthResponsesOperationFilter>();
 			}
 		);

@@ -38,7 +38,7 @@ namespace JobHub.API.Controllers
 		// GET: ScrapeController
 		[HttpPost("ScrapeFromHipo")]
 		[Authorize(Roles = "Administrator")]
-		public IEnumerable<string> PostHipoJobs(int pagesNumber)
+		public IEnumerable<JobItemResponse> PostHipoJobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
@@ -55,14 +55,16 @@ namespace JobHub.API.Controllers
 			scrapedAnchorTexts.Add(scrapedAnchorTexts.Count.ToString());
 
 			ChromeDriverSingleton.Quit();
+            
+			var jobsDto = _mapper.Map<List<JobItemResponse>>(jobs);
 
-			return scrapedAnchorTexts;
-		}
+            return jobsDto;
+        }
 
 		// GET: ScrapeController
 		[HttpPost("ScrapeFromEJobs")]
 		[Authorize(Roles = "Administrator")]
-		public IEnumerable<string> PostEjobsJobs(int pagesNumber)
+		public IEnumerable<JobItemResponse> PostEjobsJobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
@@ -79,14 +81,16 @@ namespace JobHub.API.Controllers
 			scrapedAnchorTexts.Add(scrapedAnchorTexts.Count.ToString());
 
 			ChromeDriverSingleton.Quit();
+            
+			var jobsDto = _mapper.Map<List<JobItemResponse>>(jobs);
 
-			return scrapedAnchorTexts;
-		}
+            return jobsDto;
+        }
 
 		// GET: ScrapeController
 		[HttpPost("ScrapeFromJobRadar24")]
 		[Authorize(Roles = "Administrator")]
-		public IEnumerable<string> PostJobRadar24Jobs(int pagesNumber)
+		public IEnumerable<JobItemResponse> PostJobRadar24Jobs(int pagesNumber)
 		{
 			// Initialize a list to store the scraped anchor texts
 			List<string> scrapedAnchorTexts = new List<string>();
@@ -104,7 +108,9 @@ namespace JobHub.API.Controllers
 
 			ChromeDriverSingleton.Quit();
 
-			return scrapedAnchorTexts;
+            var jobsDto = _mapper.Map<List<JobItemResponse>>(jobs);
+
+            return jobsDto;
 		}
 
 
@@ -130,13 +136,14 @@ namespace JobHub.API.Controllers
 		{
 			var result = await _jobRepository.RemoveDuplicatesAsync();
 
-			if (result.Success)
+			if (result.Succes)
 			{
-				return Ok($"{result.DeletedCount} Duplicates deleted successfully.");
+				//return Ok($"{result.DeletedCount} Duplicates deleted successfully.");
+				return Ok(result);
 			}
 			else
 			{
-				return StatusCode(500, "Failed to delete duplicates."); // You can customize the error response
+				return Ok(result); // You can customize the error response
 			}
 		}
 	}

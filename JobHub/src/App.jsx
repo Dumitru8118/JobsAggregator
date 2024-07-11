@@ -33,7 +33,7 @@ function App() {
   }, []);
 
   const handleLoginSuccess = (token) => {
-    console.log("Login successful. Token:", token); // Debug statement
+    // console.log("Login successful. Token:", token); // Debug statement
     localStorage.setItem("jwtToken", token);
 
     setIsLoggedIn(true);
@@ -47,13 +47,13 @@ function App() {
 
     navigate("/sign-in"); // Use navigate for programmatic navigation
   };
-
-  console.log("App component re-rendered. isLoggedIn:", isLoggedIn); // Debug statement
-  console.log(localStorage.getItem("jwtToken"));
+  // console.log(user)
+  // console.log("App component re-rendered. isLoggedIn:", isLoggedIn); // Debug statement
+  // console.log(localStorage.getItem("jwtToken"));
 
   return (
     <div className="App">
-      <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} user ={user}/>
       <Routes>
         <Route
           index
